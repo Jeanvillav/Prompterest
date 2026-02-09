@@ -3,9 +3,9 @@ import PromptCard from '@/components/prompt-card'
 
 export const revalidate = 60 // Update feed every 60s
 
-export default async function Home({ searchParams }: { searchParams: { q?: string } }) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const supabase = await createClient()
-  const query = searchParams.q
+  const { q: query } = await searchParams
 
   let dbQuery = supabase
     .from('prompts')
