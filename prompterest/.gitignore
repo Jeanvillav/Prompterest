@@ -26,7 +26,12 @@
 
 # debug
 npm-debug.log*
-yarn-debug.log*
+yarn-debug.log*# Temporary and debug files
+supabase_status.txt
+supabase_status_utf8.txt
+image_debug.log
+push_error.txt
+*.log
 yarn-error.log*
 .pnpm-debug.log*
 

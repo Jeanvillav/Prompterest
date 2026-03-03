@@ -9,16 +9,24 @@ import { User } from '@supabase/supabase-js'
 
 export default function Navbar() {
     const [user, setUser] = useState<User | null>(null)
+    const [profile, setProfile] = useState<any>(null)
     const supabase = createClient()
     const router = useRouter()
 
     useEffect(() => {
+        const fetchProfile = async (userId: string) => {
+            const { data } = await supabase.from('profiles').select('username').eq('id', userId).single()
+            setProfile(data)
+        }
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => {
                 if (session) {
                     setUser(session.user)
+                    fetchProfile(session.user.id)
                 } else {
                     setUser(null)
+                    setProfile(null)
                 }
             }
         )
@@ -32,6 +40,7 @@ export default function Navbar() {
         await supabase.auth.signOut()
         router.refresh()
     }
+
 
     // Add helper function inside component or use generic logic
     const handleSearch = (term: string) => {
@@ -84,10 +93,13 @@ export default function Navbar() {
                                 <Link href="/submit" className="text-gray-700 font-medium hover:bg-gray-100 px-3 py-2 rounded-md transition-colors">
                                     Create
                                 </Link>
-                                <div className="h-8 w-8 bg-gray-200 rounded-full overflow-hidden border">
+                                <Link
+                                    href={`/profile/${profile?.username || user.user_metadata?.username || user.email?.split('@')[0]}`}
+                                    className="h-8 w-8 bg-gray-200 rounded-full overflow-hidden border hover:ring-2 hover:ring-red-500 transition-all"
+                                >
                                     {/* Placeholder Avatar */}
                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="Avatar" />
-                                </div>
+                                </Link>
                                 <button
                                     onClick={handleSignOut}
                                     className="text-sm text-gray-500 hover:text-gray-900"

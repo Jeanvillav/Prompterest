@@ -6,8 +6,34 @@ import { ArrowLeft } from 'lucide-react'
 import RatingStars from '@/components/rating-stars'
 import CommentSection from '@/components/comment-section'
 import PromptActions from '@/components/prompt-actions'
+import { Metadata } from 'next'
 
-export default async function PromptDetail({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params
+    const supabase = await createClient()
+    const { data: prompt } = await supabase.from('prompts').select('title, description, image_url').eq('id', id).single()
+
+    if (!prompt) return { title: 'Prompt Not Found' }
+
+    return {
+        title: `${prompt.title} | Prompterest`,
+        description: prompt.description || 'Check out this awesome AI prompt on Prompterest.',
+        openGraph: {
+            title: prompt.title,
+            description: prompt.description || '',
+            images: prompt.image_url ? [{ url: prompt.image_url }] : [],
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: prompt.title,
+            description: prompt.description || '',
+            images: prompt.image_url ? [prompt.image_url] : [],
+        }
+    }
+}
+
+export default async function PromptDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const supabase = await createClient()
 

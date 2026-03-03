@@ -14,8 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prompterest | Discover AI Prompts",
-  description: "The place to find and share the best AI prompts.",
+  title: "Prompterest | Discover & Share AI Prompts",
+  description: "The premium social network for AI prompt engineering. Find, save, and share the best prompts for Midjourney, ChatGPT, and more.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://prompterest.vercel.app",
+    siteName: "Prompterest",
+    title: "Prompterest | Discover & Share AI Prompts",
+    description: "The premium social network for AI prompt engineering.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Prompterest | Discover & Share AI Prompts",
+    description: "The premium social network for AI prompt engineering.",
+  }
 };
 
 export default function RootLayout({

@@ -1,0 +1,88 @@
+﻿node.exe : open supabase\.temp\profile: The system cannot 
+find the file specified.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Users\Usuario\AppData\Roamin ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (open supabase 
+   \....file specified.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Supabase CLI 2.76.15
+Using profile: supabase (supabase.co)
+Resetting local database...
+Recreating database...
+2026/03/03 10:17:06 PG Send: {"Type":"StartupMessage","Prot
+ocolVersion":196608,"Parameters":{"database":"postgres","us
+er":"postgres"}}
+2026/03/03 10:17:06 PG Recv: {"Type":"AuthenticationSASL","
+AuthMechanisms":["SCRAM-SHA-256"]}
+2026/03/03 10:17:06 PG Send: {"Type":"SASLInitialResponse",
+"AuthMechanism":"SCRAM-SHA-256","Data":"n,,n=,r=pEIClpEZYJe
+LH0ikPLMI81I2"}
+2026/03/03 10:17:06 PG Recv: {"Type":"AuthenticationSASLCon
+tinue","Data":"r=pEIClpEZYJeLH0ikPLMI81I2ZvH4F7+5M8T/JYXjIW
+cAzJmA,s=sOBbV1tPDzD7CdRdkIz3qw==,i=4096"}
+2026/03/03 10:17:06 PG Send: {"Type":"SASLResponse","Data":
+"c=biws,r=pEIClpEZYJeLH0ikPLMI81I2ZvH4F7+5M8T/JYXjIWcAzJmA,
+p=qzKcPSRziLkK73WpCen6c+mHswPhUV3G31Tk5Ws1dAY="}
+2026/03/03 10:17:06 PG Recv: {"Type":"AuthenticationSASLFin
+al","Data":"v=MpABSD1+l35CYjB7Kl9HDfhhCTE7jEKgfwqxfRs0h/s="
+}
+2026/03/03 10:17:06 PG Recv: {"Type":"AuthenticationOK"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"in_hot_standby","Value":"off"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"integer_datetimes","Value":"on"}
+2026/03/03 10:17:06 PG Recv: 
+{"Type":"ParameterStatus","Name":"TimeZone","Value":"UTC"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"IntervalStyle","Value":"postgres"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"is_superuser","Value":"off"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"application_name","Value":""}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"default_transaction_read_only","Value":"off"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"scram_iterations","Value":"4096"}
+2026/03/03 10:17:06 PG Recv: 
+{"Type":"ParameterStatus","Name":"DateStyle","Value":"ISO, 
+MDY"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"standard_conforming_strings","Value":"on"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"session_authorization","Value":"postgres"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"client_encoding","Value":"UTF8"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"server_version","Value":"17.6"}
+2026/03/03 10:17:06 PG Recv: {"Type":"ParameterStatus","Nam
+e":"server_encoding","Value":"UTF8"}
+2026/03/03 10:17:06 PG Recv: {"Type":"BackendKeyData","Proc
+essID":259,"SecretKey":1643371769}
+2026/03/03 10:17:06 PG Recv: 
+{"Type":"ReadyForQuery","TxStatus":"I"}
+Initialising schema...
++ ulimit -n
++ '[' '!' -z '' ']'
++ export ERL_CRASH_DUMP=/tmp/erl_crash.dump
++ ERL_CRASH_DUMP=/tmp/erl_crash.dump
++ '[' false = true ']'
++ [[ -n '' ]]
++ echo 'Running migrations'
++ sudo -E -u nobody /app/bin/migrate
++ '[' true = true ']'
++ echo 'Seeding selfhosted Realtime'
++ sudo -E -u nobody /app/bin/realtime eval 
+'Realtime.Release.seeds(Realtime.Repo)'
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed
+[os_mon] memory supervisor port (memsup): Erlang has closed
++ echo 'Starting Realtime'
++ ulimit -n
++ exec /app/bin/realtime eval '{:ok, _} = 
+Application.ensure_all_started(:realtime)
+{:ok, _} = Realtime.Tenants.health_check("realtime-dev")'
+[os_mon] memory supervisor port (memsup): Erlang has closed
+[os_mon] cpu supervisor port (cpu_sup): Erlang has closed

@@ -1,0 +1,110 @@
+﻿node.exe : open supabase\.temp\profile: The system cannot 
+find the file specified.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Users\Usuario\AppData\Roamin ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (open supabase 
+   \....file specified.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Loading project ref from file: supabase\.temp\project-ref
+Resolved DNS: 
+[2600:1f18:2e13:9d3f:2b81:17c8:9992:42c7]:5432
+Using database password from env var...
+Supabase CLI 2.76.15
+Using profile: supabase (supabase.co)
+Connecting to remote database...
+2026/03/02 22:05:15 PG Send: {"Type":"StartupMessage","Prot
+ocolVersion":196608,"Parameters":{"database":"postgres","us
+er":"postgres"}}
+2026/03/02 22:05:15 PG Recv: {"Type":"AuthenticationSASL","
+AuthMechanisms":["SCRAM-SHA-256"]}
+2026/03/02 22:05:15 PG Send: {"Type":"SASLInitialResponse",
+"AuthMechanism":"SCRAM-SHA-256","Data":"n,,n=,r=s4K6Y5lWTSK
+2QhMJ8HR50JQV"}
+2026/03/02 22:05:15 PG Recv: {"Type":"AuthenticationSASLCon
+tinue","Data":"r=s4K6Y5lWTSK2QhMJ8HR50JQV2UKAC29yylNqGBWMmS
+hU5ChV,s=//4YLIVq9oo0+Gtxlmcl9Q==,i=4096"}
+2026/03/02 22:05:15 PG Send: {"Type":"SASLResponse","Data":
+"c=biws,r=s4K6Y5lWTSK2QhMJ8HR50JQV2UKAC29yylNqGBWMmShU5ChV,
+p=cH9sNGwAtgC+ov74/GAJLMBII6+3IDO7jv0/JDgiVZI="}
+2026/03/02 22:05:15 PG Recv: {"Type":"AuthenticationSASLFin
+al","Data":"v=/Z4n2sjP5d1hWvKYGXkYp2AWNoLmU6XojBUlNYcQcvA="
+}
+2026/03/02 22:05:15 PG Recv: {"Type":"AuthenticationOK"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"in_hot_standby","Value":"off"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"integer_datetimes","Value":"on"}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"ParameterStatus","Name":"TimeZone","Value":"UTC"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"IntervalStyle","Value":"postgres"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"is_superuser","Value":"off"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"application_name","Value":""}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"default_transaction_read_only","Value":"off"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"scram_iterations","Value":"4096"}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"ParameterStatus","Name":"DateStyle","Value":"ISO, 
+MDY"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"standard_conforming_strings","Value":"on"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"session_authorization","Value":"postgres"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"client_encoding","Value":"UTF8"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"server_version","Value":"17.6"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParameterStatus","Nam
+e":"server_encoding","Value":"UTF8"}
+2026/03/02 22:05:15 PG Recv: {"Type":"BackendKeyData","Proc
+essID":10502,"SecretKey":25404632}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"ReadyForQuery","TxStatus":"I"}
+2026/03/02 22:05:15 PG Send: 
+{"Type":"Parse","Name":"lrupsc_1_0","Query":"SELECT 
+version FROM supabase_migrations.schema_migrations ORDER 
+BY version","ParameterOIDs":null}
+2026/03/02 22:05:15 PG Send: 
+{"Type":"Describe","ObjectType":"S","Name":"lrupsc_1_0"}
+2026/03/02 22:05:15 PG Send: {"Type":"Sync"}
+2026/03/02 22:05:15 PG Recv: {"Type":"ParseComplete"}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"ParameterDescription","ParameterOIDs":[]}
+2026/03/02 22:05:15 PG Recv: {"Type":"RowDescription","Fiel
+ds":[{"Name":"version","TableOID":17501,"TableAttributeNumb
+er":1,"DataTypeOID":25,"DataTypeSize":-1,"TypeModifier":-1,
+"Format":0}]}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"ReadyForQuery","TxStatus":"I"}
+2026/03/02 22:05:15 PG Send: {"Type":"Bind","DestinationPor
+tal":"","PreparedStatement":"lrupsc_1_0","ParameterFormatCo
+des":null,"Parameters":[],"ResultFormatCodes":[0]}
+2026/03/02 22:05:15 PG Send: 
+{"Type":"Describe","ObjectType":"P","Name":""}
+2026/03/02 22:05:15 PG Send: 
+{"Type":"Execute","Portal":"","MaxRows":0}
+2026/03/02 22:05:15 PG Send: {"Type":"Sync"}
+2026/03/02 22:05:15 PG Recv: {"Type":"BindComplete"}
+2026/03/02 22:05:15 PG Recv: {"Type":"RowDescription","Fiel
+ds":[{"Name":"version","TableOID":17501,"TableAttributeNumb
+er":1,"DataTypeOID":25,"DataTypeSize":-1,"TypeModifier":-1,
+"Format":0}]}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"DataRow","Values":[{"text":"20260302234239"}]}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"DataRow","Values":[{"text":"20260303002157"}]}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"CommandComplete","CommandTag":"SELECT 2"}
+2026/03/02 22:05:15 PG Recv: 
+{"Type":"ReadyForQuery","TxStatus":"I"}
+Do you want to push these migrations to the remote 
+database?
+ ΓÇó [1m20260303030002_add_blurhash_to_prompts.sql[0m
+
