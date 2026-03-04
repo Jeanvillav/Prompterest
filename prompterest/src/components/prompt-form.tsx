@@ -1,9 +1,15 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Image as ImageIcon, Loader2 } from 'lucide-react'
+
+const AI_MODELS = [
+    'ChatGPT', 'Claude', 'Gemini', 'Midjourney', 'Stable Diffusion',
+    'Taskade', 'Feedough AI', 'PromptGen', 'HIX AI', 'FlowGPT',
+    'PromptLayer', 'LangChain', 'Perplexity'
+];
 
 export default function PromptForm() {
     const [title, setTitle] = useState('')
@@ -13,10 +19,21 @@ export default function PromptForm() {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [categories, setCategories] = useState<{ id: string, name: string }[]>([])
+    const [categoryId, setCategoryId] = useState('')
+    const [aiModel, setAiModel] = useState('ChatGPT')
 
     const fileInputRef = useRef<HTMLInputElement>(null)
     const router = useRouter()
     const supabase = createClient()
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const { data } = await supabase.from('categories').select('id, name').order('name')
+            if (data) setCategories(data)
+        }
+        fetchCategories()
+    }, [supabase])
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -33,6 +50,11 @@ export default function PromptForm() {
 
         if (!imageFile) {
             setError('Please upload an image for your prompt.')
+            setLoading(false)
+            return
+        }
+        if (!categoryId) {
+            setError('Please select a category.')
             setLoading(false)
             return
         }
@@ -66,7 +88,9 @@ export default function PromptForm() {
                     description,
                     prompt_text: promptText,
                     image_url: publicUrl,
-                    user_id: user.id
+                    user_id: user.id,
+                    category_id: categoryId,
+                    ai_model: aiModel
                 })
 
             if (insertError) throw insertError
@@ -118,18 +142,54 @@ export default function PromptForm() {
             </div>
 
             {/* Inputs */}
-            <div className="space-y-4">
-                <div>
-                    <label htmlFor="title" className="block text-sm font-bold text-gray-900">Title</label>
-                    <input
-                        type="text"
-                        id="title"
-                        required
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-lg border px-3 py-2 text-gray-900 placeholder:text-gray-500"
-                        placeholder="e.g., Cyberpunk Cityscape"
-                    />
+            <div className="space-y-6">
+                <div className="space-y-3">
+                    <label className="block text-sm font-bold text-gray-900">AI Model</label>
+                    <div className="flex flex-wrap gap-2">
+                        {AI_MODELS.map(model => (
+                            <button
+                                key={model}
+                                type="button"
+                                onClick={() => setAiModel(model)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${aiModel === model
+                                        ? 'bg-gray-900 text-white border border-gray-900 shadow-sm'
+                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                                    }`}
+                            >
+                                {model}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="title" className="block text-sm font-bold text-gray-900">Title</label>
+                        <input
+                            type="text"
+                            id="title"
+                            required
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-base border px-3 py-2 text-gray-900 placeholder:text-gray-500"
+                            placeholder="e.g., Cyberpunk Cityscape"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="category" className="block text-sm font-bold text-gray-900">Category</label>
+                        <select
+                            id="category"
+                            required
+                            value={categoryId}
+                            onChange={(e) => setCategoryId(e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-base border px-3 py-2 text-gray-900 bg-white"
+                        >
+                            <option value="" disabled>Select a category</option>
+                            {categories.map(c => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <div>

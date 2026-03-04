@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import PromptFeed from '@/components/prompt-feed'
+import PinterestLanding from '@/components/landing'
 import { getPrompts } from '@/lib/queries/prompts'
 
 export const revalidate = 60 // Update feed every 60s
@@ -9,6 +10,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
   const { q: query } = await searchParams
 
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return <PinterestLanding />
+  }
 
   let prompts = []
   try {
