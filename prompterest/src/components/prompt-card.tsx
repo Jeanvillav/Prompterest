@@ -8,17 +8,17 @@ export interface Prompt {
     id: string
     title: string
     media_url: string | null
-    media_type?: 'image' | 'video' | 'none'
+    media_type?: 'image' | 'video' | 'none' | null
     blur_hash?: string | null
     user_id: string
-    is_saved?: boolean
-    ai_models?: string[]
-    categories?: { name: string }
-    category?: { name: string }
-    prompt_text?: string
-    description?: string
-    rating?: number
-    comments_count?: number
+    is_saved?: boolean | null
+    ai_models?: string[] | null
+    categories?: { name: string } | null
+    category?: { name: string } | null
+    prompt_text?: string | null
+    description?: string | null
+    rating?: number | null
+    comments_count?: number | null
 }
 
 interface PromptCardProps {
@@ -107,13 +107,13 @@ export default function PromptCard({ prompt, userId = null }: PromptCardProps) {
                     {/* Footer / Insights */}
                     <div className="mt-2 pt-3 border-t border-[#2a2a2a] flex items-center justify-between text-gray-400 text-xs font-medium px-1">
                         <div className="flex items-center gap-4">
-                            {prompt.rating !== undefined && prompt.rating > 0 && (
+                            {prompt.rating != null && prompt.rating > 0 && (
                                 <div className="flex items-center gap-1 hover:text-yellow-500 transition-colors cursor-pointer group/rating">
                                     <span className="group-hover/rating:scale-110 transition-transform">⭐</span>
                                     <span>{prompt.rating.toFixed(1)}</span>
                                 </div>
                             )}
-                            {prompt.comments_count !== undefined && prompt.comments_count > 0 && (
+                            {prompt.comments_count != null && prompt.comments_count > 0 && (
                                 <div className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
                                     <MessageSquare className="w-3.5 h-3.5" />
                                     <span>{prompt.comments_count}</span>
