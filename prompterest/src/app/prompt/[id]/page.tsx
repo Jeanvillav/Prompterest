@@ -11,7 +11,7 @@ import { Metadata } from 'next'
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params
     const supabase = await createClient()
-    const { data: prompt } = await supabase.from('prompts').select('title, description, image_url').eq('id', id).single()
+    const { data: prompt } = await supabase.from('prompts').select('title, description, media_url, media_type').eq('id', id).single()
 
     if (!prompt) return { title: 'Prompt Not Found' }
 
@@ -21,14 +21,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         openGraph: {
             title: prompt.title,
             description: prompt.description || '',
-            images: prompt.image_url ? [{ url: prompt.image_url }] : [],
+            images: prompt.media_url && prompt.media_type === 'image' ? [{ url: prompt.media_url }] : [],
             type: 'article',
         },
         twitter: {
             card: 'summary_large_image',
             title: prompt.title,
             description: prompt.description || '',
-            images: prompt.image_url ? [prompt.image_url] : [],
+            images: prompt.media_url && prompt.media_type === 'image' ? [prompt.media_url] : [],
         }
     }
 }
@@ -66,12 +66,29 @@ export default async function PromptDetail({ params }: { params: Promise<{ id: s
 
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="relative flex items-start justify-center p-6 md:p-12 bg-white">
-                        <img
-                            src={prompt.image_url || 'https://via.placeholder.com/600x600'}
-                            alt={prompt.title}
-                            className="rounded-2xl shadow-lg w-full h-auto object-contain max-h-[85vh] sticky top-8"
-                        />
+                    <div className="relative flex items-center justify-center p-6 md:p-12 bg-gray-50 h-full">
+                        <div className="sticky top-8 w-full flex items-center justify-center">
+                            {prompt.media_type === 'video' ? (
+                                <video
+                                    src={prompt.media_url || ''}
+                                    className="rounded-2xl shadow-lg w-full h-auto object-contain max-h-[85vh]"
+                                    controls
+                                    autoPlay
+                                    muted
+                                    loop
+                                />
+                            ) : prompt.media_type === 'none' ? (
+                                <div className="rounded-2xl shadow-inner bg-gray-900 w-full min-h-[50vh] flex items-center justify-center p-8">
+                                    <p className="text-gray-300 italic font-serif text-2xl text-center leading-relaxed">"{prompt.title}"</p>
+                                </div>
+                            ) : (
+                                <img
+                                    src={prompt.media_url || 'https://via.placeholder.com/600x600?text=No+Media'}
+                                    alt={prompt.title}
+                                    className="rounded-2xl shadow-lg w-full h-auto object-contain max-h-[85vh]"
+                                />
+                            )}
+                        </div>
                     </div>
 
                     <div className="p-8 md:p-12 flex flex-col h-full">

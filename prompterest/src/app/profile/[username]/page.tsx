@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import PromptCard from '@/components/prompt-card'
 import { getUserSavedPrompts } from '@/lib/queries/prompts'
+import ProfileAvatar from '@/components/profile-avatar'
 
 interface ProfilePageProps {
     params: Promise<{ username: string }>
@@ -29,6 +29,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         notFound()
     }
 
+    const isOwner = user?.id === profile.id
+
     // 2. Fetch Data according to tab
     let prompts = []
     if (isSavedTab) {
@@ -50,14 +52,13 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         <div className="max-w-6xl mx-auto px-4 py-12">
             {/* Profile Header */}
             <div className="flex flex-col items-center mb-12 text-center">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg">
-                    <Image
-                        src={profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
-                        alt={profile.username}
-                        fill
-                        className="object-cover"
-                    />
-                </div>
+                <ProfileAvatar
+                    profileId={profile.id}
+                    username={profile.username}
+                    avatarUrl={profile.avatar_url}
+                    isOwner={isOwner}
+                />
+
                 <h1 className="text-3xl font-extrabold text-gray-900">
                     @{profile.username}
                 </h1>
@@ -83,8 +84,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 <Link
                     href={`/profile/${username}`}
                     className={`px-6 py-4 text-sm font-bold transition-all border-b-2 ${!isSavedTab
-                            ? 'border-gray-900 text-gray-900'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        ? 'border-gray-900 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                 >
                     Mis Prompts
@@ -92,8 +93,8 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 <Link
                     href={`/profile/${username}?tab=saved`}
                     className={`px-6 py-4 text-sm font-bold transition-all border-b-2 ${isSavedTab
-                            ? 'border-gray-900 text-gray-900'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        ? 'border-gray-900 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                 >
                     Guardados

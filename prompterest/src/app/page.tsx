@@ -1,13 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import PromptFeed from '@/components/prompt-feed'
 import PinterestLanding from '@/components/landing'
+import CategoryPills from '@/components/category-pills'
+import Sidebar from '@/components/sidebar'
 import { getPrompts } from '@/lib/queries/prompts'
 
 export const revalidate = 60 // Update feed every 60s
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ q?: string, category?: string }> }) {
   const supabase = await createClient()
-  const { q: query } = await searchParams
+  const resolvedSearchParams = await searchParams
+  const query = resolvedSearchParams.q
+  const categorySlug = resolvedSearchParams.category
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -19,6 +23,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
   try {
     prompts = await getPrompts(supabase, {
       query,
+      categorySlug,
       page: 0,
       pageSize: 10,
       userId: user?.id
@@ -32,25 +37,24 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
     )
   }
 
-  if (prompts.length === 0) {
-    if (query) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Lo siento! 😔</h2>
-          <p className="text-gray-600 mt-2">Aún no tenemos un prompt para eso.</p>
-        </div>
-      )
-    }
-
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-        <h2 className="text-2xl font-bold text-gray-400">No prompts yet.</h2>
-        <p className="text-gray-500 mt-2">Be the first to create one!</p>
-      </div>
-    )
-  }
-
   return (
-    <PromptFeed initialPrompts={prompts} searchQuery={query} userId={user?.id} />
+    <div className="bg-gray-950 min-h-screen text-gray-100">
+      <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8">
+        <Sidebar activeQuery={query} />
+
+        <main className="flex-1 min-w-0">
+          <CategoryPills activeCategory={categorySlug} />
+
+          {prompts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center bg-gray-900 rounded-3xl border border-gray-800">
+              <h2 className="text-2xl font-bold text-gray-400">No hay resultados</h2>
+              <p className="text-gray-500 mt-2">Prueba quitando filtros o buscando otra idea.</p>
+            </div>
+          ) : (
+            <PromptFeed initialPrompts={prompts} searchQuery={query} categorySlug={categorySlug} userId={user?.id} />
+          )}
+        </main>
+      </div>
+    </div>
   )
 }

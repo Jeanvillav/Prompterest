@@ -70,7 +70,7 @@ export default function PinterestLanding() {
                 </div>
 
                 {/* CTA Flotante */}
-                <div className="absolute bottom-16 md:bottom-24 w-full flex flex-col items-center px-4 animate-bounce-slow">
+                <div className="mt-12 md:mt-16 w-full flex flex-col items-center px-4 animate-bounce-slow relative z-10">
                     <p className="text-xl font-medium text-gray-900 bg-white/80 backdrop-blur-md px-6 py-2 rounded-full shadow-sm mb-6">
                         Regístrate para ver ideas
                     </p>
@@ -97,10 +97,22 @@ export default function PinterestLanding() {
 
                     {/* Section 1: Search */}
                     <div className="flex flex-col md:flex-row items-center gap-12 md:gap-24">
-                        <div className="flex-1 w-full max-w-md bg-gray-50 rounded-3xl p-8 shadow-xl border border-gray-100 flex items-center justify-center h-80 relative overflow-hidden">
-                            <div className="absolute w-[120%] h-20 bg-white rounded-full shadow-md flex items-center px-6 gap-3 transform -rotate-3 animate-pulse">
-                                <Search className="text-gray-400 w-6 h-6" />
-                                <div className="h-6 w-48 bg-gray-200 rounded-md"></div>
+                        <div className="flex-1 w-full max-w-md bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-8 shadow-xl border border-purple-100 flex flex-col items-center justify-center h-80 relative overflow-hidden">
+                            {/* Decorative background elements */}
+                            <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70"></div>
+                            <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-indigo-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70"></div>
+
+                            {/* Main Search Bar Mockup */}
+                            <div className="w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-5 relative z-10 transform transition-transform hover:scale-105 duration-300">
+                                <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-4">
+                                    <Search className="text-indigo-500 w-6 h-6 flex-shrink-0" />
+                                    <div className="h-6 w-3/4 bg-gray-100 rounded-md"></div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded-full">#marketing</span>
+                                    <span className="px-3 py-1 bg-purple-50 text-purple-600 text-xs font-semibold rounded-full">#midjourney</span>
+                                    <span className="px-3 py-1 bg-pink-50 text-pink-600 text-xs font-semibold rounded-full">#seo</span>
+                                </div>
                             </div>
                         </div>
                         <div className="flex-1 text-center md:text-left space-y-6">

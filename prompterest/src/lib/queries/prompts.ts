@@ -4,7 +4,9 @@ export interface PromptWithSave {
     id: string
     title: string
     description: string | null
-    image_url: string | null
+    media_url: string | null
+    media_type: 'image' | 'video' | 'none'
+    ai_models?: string[]
     blur_hash: string | null
     user_id: string
     created_at: string
@@ -19,12 +21,13 @@ export async function getPrompts(
     supabase: SupabaseClient,
     params: {
         query?: string
+        categorySlug?: string
         page?: number
         pageSize?: number
         userId?: string
     }
 ) {
-    const { query, page = 0, pageSize = 10, userId } = params
+    const { query, categorySlug, page = 0, pageSize = 10, userId } = params
     const from = page * pageSize
     const to = from + pageSize - 1
 
@@ -37,6 +40,18 @@ export async function getPrompts(
         `)
         .order('created_at', { ascending: false })
         .range(from, to)
+
+    if (categorySlug) {
+        const { data: cat } = await supabase
+            .from('categories')
+            .select('id')
+            .eq('slug', categorySlug)
+            .single()
+
+        if (cat) {
+            dbQuery = dbQuery.eq('category_id', cat.id)
+        }
+    }
 
     if (query && query.trim()) {
         // Use Full-Text Search

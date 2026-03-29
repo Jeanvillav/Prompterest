@@ -33,7 +33,9 @@ async function seed() {
             user_id: '11111111-1111-1111-1111-111111111111',
             title: 'Test Prompt',
             prompt_text: 'A beautiful sunset',
-            image_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800'
+            media_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+            media_type: 'image',
+            ai_models: ['Midjourney']
         });
 
     if (promptError) {

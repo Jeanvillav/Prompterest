@@ -9,10 +9,11 @@ import { getPrompts } from '@/lib/queries/prompts'
 interface PromptFeedProps {
     initialPrompts: Prompt[]
     searchQuery?: string
+    categorySlug?: string
     userId?: string | null
 }
 
-export default function PromptFeed({ initialPrompts, searchQuery, userId = null }: PromptFeedProps) {
+export default function PromptFeed({ initialPrompts, searchQuery, categorySlug, userId = null }: PromptFeedProps) {
     const [prompts, setPrompts] = useState<Prompt[]>(initialPrompts)
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
@@ -27,6 +28,7 @@ export default function PromptFeed({ initialPrompts, searchQuery, userId = null 
         try {
             const data = await getPrompts(supabase, {
                 query: searchQuery,
+                categorySlug,
                 page,
                 pageSize: 10,
                 userId: userId || undefined
@@ -54,15 +56,15 @@ export default function PromptFeed({ initialPrompts, searchQuery, userId = null 
         }
     }, [inView, hasMore])
 
-    // Reset when searchQuery changes
+    // Reset when searchQuery or categorySlug changes
     useEffect(() => {
         setPrompts(initialPrompts)
         setPage(1)
         setHasMore(true)
-    }, [searchQuery, initialPrompts])
+    }, [searchQuery, categorySlug, initialPrompts])
 
     return (
-        <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full">
             <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-6 space-y-6">
                 {prompts.map((prompt) => (
                     <PromptCard key={prompt.id} prompt={prompt} userId={userId} />

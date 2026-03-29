@@ -9,25 +9,52 @@ interface Comment {
     content: string
     created_at: string
     user_id: string
+    profiles?: {
+        username: string | null
+        avatar_url: string | null
+    }
 }
 
 export default function CommentSection({ promptId }: { promptId: string }) {
     const [comments, setComments] = useState<Comment[]>([])
     const [newComment, setNewComment] = useState('')
     const [user, setUser] = useState<User | null>(null)
+    const [userAvatar, setUserAvatar] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
     const supabase = createClient()
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data }) => setUser(data.user))
+        const fetchCurrentUserProfile = async (userId: string) => {
+            const { data } = await supabase.from('profiles').select('avatar_url').eq('id', userId).single()
+            if (data) setUserAvatar(data.avatar_url)
+        }
+
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) {
+                setUser(data.user)
+                fetchCurrentUserProfile(data.user.id)
+            }
+        })
+
         fetchComments()
+
+        const handleAvatarUpdate = () => {
+            supabase.auth.getUser().then(({ data }) => {
+                if (data.user) fetchCurrentUserProfile(data.user.id)
+            })
+        }
+        window.addEventListener('avatar-updated', handleAvatarUpdate)
+
+        return () => {
+            window.removeEventListener('avatar-updated', handleAvatarUpdate)
+        }
     }, [])
 
     const fetchComments = async () => {
         const { data } = await supabase
             .from('comments')
-            .select('*')
+            .select('*, profiles(username, avatar_url)')
             .eq('prompt_id', promptId)
             .order('created_at', { ascending: false })
 
@@ -62,26 +89,34 @@ export default function CommentSection({ promptId }: { promptId: string }) {
                 {comments.length === 0 ? (
                     <p className="text-gray-500 italic">No comments yet. Be the first!</p>
                 ) : (
-                    comments.map((comment) => (
-                        <div key={comment.id} className="flex gap-4">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-gray-500 text-xs overflow-hidden">
-                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`} alt="Av" />
+                    comments.map((comment) => {
+                        // Extracted safe profiles access if available in current relation structure
+                        // supabase joins to `profiles` might be objects or arrays
+                        const profileData = Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles;
+                        const avatarSrc = profileData?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`;
+                        const displayName = profileData?.username || `User ${comment.user_id.slice(0, 6)}...`;
+
+                        return (
+                            <div key={comment.id} className="flex gap-4">
+                                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-gray-500 text-xs overflow-hidden border border-gray-300">
+                                    <img src={avatarSrc} alt={displayName} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-r-2xl rounded-bl-2xl">
+                                    <p className="text-sm font-bold text-gray-900 mb-1">
+                                        {displayName}
+                                    </p>
+                                    <p className="text-gray-900 text-sm font-medium">{comment.content}</p>
+                                </div>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-r-2xl rounded-bl-2xl">
-                                <p className="text-sm font-bold text-gray-900 mb-1">
-                                    User {comment.user_id.slice(0, 6)}...
-                                </p>
-                                <p className="text-gray-900 text-sm font-medium">{comment.content}</p>
-                            </div>
-                        </div>
-                    ))
+                        )
+                    })
                 )}
             </div>
 
             {user ? (
                 <form onSubmit={handleSubmit} className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
-                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="My Avatar" />
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-gray-300">
+                        <img src={userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} alt="My Avatar" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                         <textarea
