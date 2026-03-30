@@ -2,15 +2,15 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Mail } from 'lucide-react'
 
 export default function Register() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const router = useRouter()
+    const [isSuccess, setIsSuccess] = useState(false)
     const supabase = createClient()
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -18,88 +18,148 @@ export default function Register() {
         setLoading(true)
         setError(null)
 
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-        })
+        try {
+            console.log("📦 PAYLOAD ENVIADO A SUPABASE:", { email: email, passwordLength: password?.length });
 
-        if (error) {
-            setError(error.message)
-            setLoading(false)
-        } else {
-            // Check if email confirmation is required or auto-login
-            // For simple standard flow, usually user needs to confirm email or is logged in immediately.
-            // We'll redirect to home.
-            router.refresh()
-            router.push('/')
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback?next=/welcome`,
+                }
+            })
+
+            console.log("🚨 RESPUESTA CRUDA DE SUPABASE:", { data, error });
+
+            // 1. Validar errores de red o servidor
+            if (error) {
+                if (error.message.includes("already registered")) {
+                    setError("Este correo ya está registrado. Por favor, inicia sesión.");
+                } else if (error.message.includes("password")) {
+                    setError("La contraseña es demasiado débil (mínimo 6 caracteres).");
+                } else {
+                    setError(error.message); // O un mensaje por defecto
+                }
+                setLoading(false);
+                return; // 🚨 ESTE RETURN ES CRÍTICO PARA DETENER LA EJECUCIÓN
+            }
+
+            // 2. Validar el hack de Supabase para correos existentes
+            if (data?.user && data.user.identities && data.user.identities.length === 0) {
+                setError("Este correo ya está registrado. Por favor, inicia sesión.");
+                setLoading(false);
+                return; // 🚨 ESTE RETURN ES CRÍTICO
+            }
+
+            // 3. Solo si pasa todas las barreras de arriba, es un éxito real:
+            setError(null);
+            setIsSuccess(true);
+            setLoading(false);
+        } catch (err) {
+            console.error("💥 ERROR DE CÓDIGO/RED:", err);
+            setError("Error inesperado de comunicación.");
+            setLoading(false);
         }
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
-            <div className="w-full max-w-md space-y-8 bg-white p-10 rounded-2xl shadow-xl">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-                        Join Prompterest
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Discover and share the best AI prompts.
-                    </p>
-                </div>
-                <form className="mt-8 space-y-6" onSubmit={handleRegister}>
-                    <div className="-space-y-px rounded-md shadow-sm">
-                        <div>
-                            <input
-                                id="email-address"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6 px-3"
-                                placeholder="Email address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="new-password"
-                                required
-                                className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6 px-3"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                    </div>
+        <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#0d0d0d] font-sans">
+            <div className="w-full max-w-md space-y-8 bg-[#1a1a1a] p-10 rounded-3xl shadow-2xl border border-[#2a2a2a] relative overflow-hidden">
 
-                    {error && (
-                        <div className="text-red-600 text-sm text-center">
-                            {error}
-                        </div>
-                    )}
+                {/* Background ambient glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-[#e60023]/20 rounded-full blur-[60px] pointer-events-none" />
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="group relative flex w-full justify-center rounded-full bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:opacity-50 transition-all"
-                        >
-                            {loading ? 'Creating account...' : 'Sign up'}
-                        </button>
-                    </div>
-                </form>
-                <div className="text-center text-sm">
-                    <p>
-                        Already have an account?{' '}
-                        <Link href="/login" className="font-semibold text-red-600 hover:text-red-500">
-                            Log in
+                <div className="relative z-10">
+                    <div className="flex justify-center mb-6">
+                        <Link href="/" className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                            <div className="w-10 h-10 bg-[#e60023] rounded-full flex items-center justify-center text-white text-lg font-bold font-serif shadow-sm">P</div>
                         </Link>
-                    </p>
+                    </div>
                 </div>
+
+                {isSuccess ? (
+                    <div className="relative z-10 text-center animate-in zoom-in-95 duration-500">
+                        <div className="flex justify-center mb-6">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-indigo-500 rounded-full blur-xl opacity-40 animate-pulse" />
+                                <div className="relative bg-[#0d0d0d] p-5 rounded-full border border-indigo-500/30">
+                                    <Mail className="w-12 h-12 text-indigo-400" strokeWidth={1.5} />
+                                </div>
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-3">Revisa tu correo</h2>
+                        <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                            Te hemos enviado un enlace mágico a <span className="text-white font-medium">{email}</span>. Haz clic en él para verificar tu cuenta y entrar a Prompterest.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="relative z-10 animate-in fade-in duration-500">
+                        <div className="mb-8">
+                            <h2 className="text-center text-3xl font-extrabold tracking-tight text-white mb-2">
+                                Únete a Prompterest
+                            </h2>
+                            <p className="text-center text-sm text-gray-400">
+                                Tu espacio premium para descubrir prompts de IA.
+                            </p>
+                        </div>
+
+                        <form className="space-y-5" onSubmit={handleRegister}>
+                            {error && (
+                                <div className="bg-red-500/10 text-red-500 border border-red-500/50 p-3 rounded-xl text-sm font-medium animate-in slide-in-from-top-2">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                                    <input
+                                        id="email-address"
+                                        name="email"
+                                        type="email"
+                                        autoComplete="email"
+                                        required
+                                        className="block w-full rounded-xl border border-[#333] bg-[#222] py-3 text-white placeholder-gray-500 focus:border-[#e60023] focus:bg-[#1a1a1a] focus:ring-1 focus:ring-[#e60023] sm:text-sm transition-colors px-4 outline-none"
+                                        placeholder="tu@email.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type="password"
+                                        autoComplete="new-password"
+                                        required
+                                        className="block w-full rounded-xl border border-[#333] bg-[#222] py-3 text-white placeholder-gray-500 focus:border-[#e60023] focus:bg-[#1a1a1a] focus:ring-1 focus:ring-[#e60023] sm:text-sm transition-colors px-4 outline-none"
+                                        placeholder="Min. 6 caracteres"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-full shadow-sm text-sm font-bold text-white bg-[#e60023] hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 focus:ring-offset-[#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6"
+                            >
+                                {loading ? 'Creando cuenta...' : 'Continuar'}
+                            </button>
+                        </form>
+
+                        <div className="mt-8 text-center text-sm">
+                            <p className="text-gray-400">
+                                ¿Ya tienes una cuenta?{' '}
+                                <Link href="/login" className="font-bold text-[#e60023] hover:text-red-400 transition-colors">
+                                    Inicia sesión
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
