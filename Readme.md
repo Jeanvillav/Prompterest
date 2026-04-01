@@ -1,71 +1,110 @@
-# INFORME TÉCNICO DE ESTADO: PROMPTEREST (MVP)
-> **Fecha de Actualización**: 13 Enero 2026
-> **Estado**: MVP Completo / Funcional en Local
+# Prompterest
 
-## 1. DESCRIPCIÓN DEL PROYECTO
-"Prompterest" es una aplicación web tipo Pinterest para compartir y descubrir prompts de Inteligencia Artificial (Midjourney, DALL-E, etc.). Los usuarios pueden subir imágenes generadas junto con el texto (prompt) utilizado, y otros usuarios pueden verlos, copiarlos, valorarlos y comentarlos.
+![Next.js](https://img.shields.io/badge/Next.js%2015-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-## 2. STACK TECNOLÓGICO Y VERSIONES
-*   **Frontend**: Next.js 14+ (App Router), React, TypeScript.
-*   **Estilos**: Tailwind CSS (con `tailwindcss-animate` y `lucide-react` para iconos).
-*   **Backend / BaaS**: Supabase.
-    *   **Auth**: Gestión de usuarios (Email/Password).
-    *   **Database**: PostgreSQL.
-    *   **Storage**: Almacenamiento de imágenes (`prompt-images`).
-*   **Despliegue**: Preparado para Vercel (actualmente corriendo en local).
+Plataforma Full-Stack (MVP) para descubrir, documentar y compartir prompts de Inteligencia Artificial. 
 
-## 3. ARQUITECTURA DETALLADA
-El proyecto sigue la estructura estándar de Next.js App Router:
-*   `src/app/`: Rutas y páginas (`page.tsx`, `layout.tsx`).
-    *   `(auth)/`: Rutas agrupadas para Login y Register.
-    *   `prompt/[id]/`: Ruta dinámica para detalle (incluye sub-ruta `edit/`).
-    *   `message.ts`: Middleware para proteger rutas privadas (`/submit`).
-*   `src/components/`: Componentes UI reutilizables.
-    *   Clave: `prompt-card.tsx` (Grid), `prompt-form.tsx` (Subida), `comment-section.tsx`.
-*   `src/lib/supabase/`: Clientes de conexión.
-    *   `client.ts`: `createBrowserClient` (para Client Components).
-    *   `server.ts`: `createServerClient` (para Server Components/Actions, maneja cookies).
+Prompterest está desarrollado con un enfoque en rendimiento, seguridad y experiencia de usuario inmersiva (Dark Mode). Utiliza una arquitectura moderna basada en Next.js (App Router) y Supabase para gestionar el ciclo de vida completo de curación de contenido GenAI.
 
-## 4. BASE DE DATOS (ESQUEMA SUPABASE)
-El esquema SQL actual (`setup_prompterest.sql`) define:
-*   **Tablas**:
-    *   `prompts`: id, user_id, title, description, prompt_text, image_url, created_at.
-    *   `ratings`: Vincula user_id + prompt_id con un valor (1-5). Constraint UNIQUE para evitar votos dobles.
-    *   `comments`: Comentarios de texto plano vinculados a user_id y prompt_id.
-*   **Seguridad (RLS)**:
-    *   Habilitada en todas las tablas.
-    *   Lectura pública (`anon`), Escritura restringida a usuarios autenticados (`authenticated`).
-    *   Edición/Borrado restringido estrictamente al dueño del registro (`auth.uid() = user_id`).
+---
 
-## 5. ESTADO FUNCIONAL ACTUAL (DETALLE)
-Todo lo listado a continuación está **IMPLEMENTADO Y PROBADO**:
+## 🏗️ Arquitectura del Sistema
 
-### A. Core / Navegación
-*   **Navbar**: Responsivo. Muestra Auth Links o Avatar de usuario.
-*   **Buscador**: Funcional. Filtra por título/descripción usando `ilike` y `or`. Maneja estados vacíos personalizados.
-*   **Feed (Home)**: Grid tipo mampostería ("Masonry") usando columnas CSS de Tailwind. SSR (Server Side Rendering) para carga inicial.
+El proyecto separa de forma clara las responsabilidades entre el Frontend y el Backend como servicio (BaaS):
 
-### B. Gestión de Contenido (CRUD)
-*   **Crear (`/submit`)**: Subida de imagen a Supabase Storage + Insert en DB. Validación de formulario y contrastes de texto corregidos (negro sobre blanco).
-*   **Leer (`/prompt/[id]`)**: Vista de detalle con imagen "Sticky" (se mantiene visible al hacer scroll). Botón "Copy" con feedback visual.
-*   **Editar**: Ruta dedicada. Rellena el formulario con datos existentes. Solo accesible por el creador.
-*   **Borrar**: Botón con confirmación (`window.confirm`). Borra de la DB (Soft delete no implementado, borrado duro).
+- **Frontend:** Construido con **Next.js 15 (App Router)**. Hace un uso combinado de Server Components para fetching inicial optimizado y Client Components para interacciones reactivas en el navegador. La interfaz de usuario está estilizada íntegramente con Tailwind CSS.
+- **Backend:** Gestionado a través de **Supabase (PostgreSQL)**. Provee la capa de autenticación (GoTrue), almacenamiento de objetos (Storage para avatares y multimedia) y una base de datos relacional. La comunicación se realiza mediante el cliente SSR de Supabase y está protegida usando Row Level Security (RLS).
 
-### C. Interacciones Social
-*   **Rating**: Componente de estrellas interactivo. Upsert (crear o actualizar voto). Muestra promedio simple.
-*   **Comentarios**: Lista y formulario de envío. Estilos oscuros para legibilidad.
+---
 
-## 6. COSAS QUE FALTAN / DEUDA TÉCNICA (PARA FUTUROS DESARROLLOS)
-Si otro LLM o desarrollador toma este proyecto, aquí es donde debe enfocarse:
+## ✨ Estado Actual de Funcionalidades 
 
-*   **Perfiles de Usuario**: Actualmente se usa el email/ID de Supabase Auth. Faltaría crear una tabla `profiles` pública para manejar Avatares reales, Bios y "Username" personalizado.
-*   **Likes/Guardados**: Diferente a Rating. Un sistema de "Bookmarks" o "Favoritos" para guardar prompts en el perfil.
-*   **Dashboard de Admin**: Panel para ver todos mis prompts creados en un solo lugar (ahora mismo solo se ven en el feed general).
-*   **Optimización de Imágenes**: Implementar `next/image` para Lazy Loading y optimización automática (actualmente usa `<img>` estándar).
-*   **Paginación**: El feed carga TODO. Faltaría implementar "Infinite Scroll" o paginación para escalar a miles de prompts.
+### 🔐 Autenticación PKCE
+- **Sistema Passwordless:** Implementación de flujos de inicio de sesión mediante Magic Links.
+- **Onboarding:** Redirección segura a la ruta `/welcome` e interceptación de errores de creación de cuenta que protegen la enumeración de correos.
+- **Gestión de Sesión:** Manejo de estado de autenticación en SSR persistido mediante cookies gestionadas en el Middleware de Next.js.
 
-## 7. INSTRUCCIONES PARA RETOMAR
-1.  **Instalar**: `npm install`
-2.  **Entorno**: Asegurar `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `ANON_KEY`.
-3.  **Base de Datos**: Si es un entorno nuevo, correr `setup_prompterest.sql` en Supabase.
-4.  **Ejecutar**: `npm run dev`.
+### 👤 Perfiles de Usuario
+- **Personalización:** Modales de edición de perfil reactivos.
+- **Subida de Avatares:** Implementación de Dropzone y WebRTC (API Canvas) para permitir captura desde cámara web o carga de archivos locales de forma fluida.
+
+### 🔍 Feed y Búsqueda
+- **Diseño Masonry:** Renderizado asimétrico fluido de prompts en el Feed principal.
+- **Búsqueda Estándar y Filtros:** Búsqueda de texto integrada interceptada por parámetros URL (`?q=...`), trabajando en conjunto con rutas dinámicas (`/category/[slug]`) para agrupar contenido por "Comunidades".
+
+### 📝 Creación de Prompts
+- **Control Multimedia Estricto:** Validación de archivos del lado del cliente y servidor, limitando los videos a un máximo de 30 segundos de duración y tamaño de 15MB, evitando saturación del bucket.
+- **Gestión Dinámica de Etiquetas:** Selección múltiple de modelos base de IA (ej. GPT-4, Midjourney) limitados a 5 selecciones únicas por prompt.
+
+---
+
+## 🗄️ Esquema de Base de Datos y Seguridad
+
+El modelo relacional está compuesto principalmente por las siguientes tablas, todas securizadas por políticas RLS:
+
+- `profiles`: Sincronizada automáticamente con `auth.users` al momento del registro. Almacena metadatos públicos como el `username` y `avatar_url`.
+- `prompts`: Tabla principal para almacenamiento del contenido, texto generativo, referencias al medio adjunto y el modelo IA empleado.
+- `categories`: Entidad estática para la normalización de las agrupaciones de contenido.
+- `comments`: **Sistema de comentarios relacional plano** que conecta a los usuarios directamente con los prompts.
+
+**Supabase Storage:**  
+Dispone de buckets para `avatars` y `prompt-images`. Ambos tienen políticas de escritura restringidas al UUID del usuario autenticado (`auth.uid() = owner_id`), pero habilitan la configuración de lectura pública para la renderización rápida del lado del cliente.
+
+---
+
+## 🛠️ Guía de Despliegue Local
+
+### Prerrequisitos
+- Node.js (v18 o superior)
+- Docker Desktop (en ejecución)
+- Supabase CLI instalado (`npm i -g supabase`)
+
+### Pasos
+
+1. **Clonar e instalar dependencias:**
+   ```bash
+   git clone https://github.com/tu-usuario/prompterest.git
+   cd prompterest
+   npm install
+   ```
+
+2. **Inyectar la configuración de correos locales:**  
+   Antes de iniciar los contenedores, ve al archivo `supabase/config.toml`, busca la sección `[auth.email]` y asegúrate de que esté habilitada la confirmación obligatoria para poder probar el flujo en local:
+   ```toml
+   [auth.email]
+   enable_confirmations = true
+   ```
+
+3. **Levantar Infraestructura Local de Supabase:**
+   ```bash
+   npx supabase start
+   ```
+   *Este comando descargará e iniciará los contenedores de Postgres, GoTrue, Inbucket, y Storage; ejecutando automáticamente las migraciones (`supabase/migrations`).*
+
+4. **Configurar Variables de Entorno:**
+   El comando anterior imprimirá las credenciales locales de la API. Crea o renombra el archivo `.env.local` y mapea los datos:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"
+   NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbG..."
+   ```
+
+5. **Arrancar Servidor de Desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+6. **Probando el Auth localmente:**
+   Los correos de verificación y Magic Links emitidos localmente serán interceptados por **Inbucket**. Puedes verlos abriendo en el navegador:
+   `http://localhost:54324`
+
+---
+
+## 🚧 Deuda Técnica y Próximos Pasos (Roadmap)
+
+A medida que el MVP se prepara para escalar, los siguientes componentes técnicos están listados como prioridad:
+- **Paginación / Infinite Scroll:** Implementar fetchers por lotes en el Feed para optimizar la carga inicial y evitar cuellos de botella en memoria cuando el volumen de prompts aumente masivamente.
+- **Sistema de Guardados (Bookmarks):** Introducir una tabla pivot para que los usuarios puedan archivar prompts favoritos en su propia biblioteca personalizada, aumentando el Core Value de retención de la plataforma.
