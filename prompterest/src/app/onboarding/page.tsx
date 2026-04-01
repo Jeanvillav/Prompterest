@@ -89,10 +89,16 @@ export default function OnboardingPage() {
     }
 
     const handleFinish = async () => {
+        console.log("🚀 [ONBOARDING] Iniciando guardado de perfil...");
         setSaving(true)
         setError(null)
 
-        if (!currentUser) return
+        if (!currentUser) {
+            console.error("❌ [ONBOARDING] ERROR: currentUser es nulo. Cancelando operación.");
+            setError("Error de sesión. Por favor recarga la página.");
+            setSaving(false)
+            return
+        }
 
         const updates: any = {
             username: username.trim().toLowerCase(),
@@ -114,22 +120,43 @@ export default function OnboardingPage() {
             updates.interests = selectedInterests
         }
 
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update(updates)
-            .eq('id', currentUser.id)
+        console.log("📦 [ONBOARDING] Payload a enviar a Supabase:", updates);
 
-        if (updateError) {
-            if (updateError.message.includes('unique') || updateError.message.includes('duplicate')) {
-                setError('Este nombre de usuario ya está en uso.')
-            } else {
-                setError(updateError.message)
+        try {
+            const { data, error: updateError } = await supabase
+                .from('profiles')
+                .update(updates)
+                .eq('id', currentUser.id)
+                .select() // Forzamos a que devuelva la fila actualizada
+
+            console.log("🚨 [ONBOARDING] Respuesta cruda de BD:", { data, updateError });
+
+            if (updateError) {
+                console.error("❌ [ONBOARDING] Error de Supabase:", updateError);
+                if (updateError.message.includes('unique') || updateError.message.includes('duplicate')) {
+                    setError('Este nombre de usuario ya está en uso.')
+                } else {
+                    setError(`Error BD: ${updateError.message}`)
+                }
+                setSaving(false)
+                return
             }
-            setSaving(false)
-            return
-        }
 
-        router.push('/')
+            if (!data || data.length === 0) {
+                console.error("❌ [ONBOARDING] ALERTA RLS: La actualización devolvió 0 filas. Esto suele significar que las políticas RLS bloquean el UPDATE.");
+                setError("Error de permisos (RLS) al guardar tu perfil.");
+                setSaving(false)
+                return
+            }
+
+            console.log("✅ [ONBOARDING] Perfil guardado con éxito. Redirigiendo a /");
+            router.push('/')
+
+        } catch (err) {
+            console.error("❌ [ONBOARDING] Excepción capturada:", err);
+            setError("Ocurrió un error inesperado de red.");
+            setSaving(false)
+        }
     }
 
     const canAdvanceStep1 = username.trim().length >= 3 && usernameStatus?.available === true
@@ -268,8 +295,8 @@ export default function OnboardingPage() {
                                             key={interest}
                                             onClick={() => toggleInterest(interest)}
                                             className={`p-3 rounded-xl border text-sm font-medium transition-all text-left ${isSelected
-                                                    ? 'bg-indigo-500/15 border-indigo-500/50 text-indigo-300'
-                                                    : 'bg-[#0d0d0d] border-[#333] text-gray-400 hover:border-[#555] hover:text-gray-200'
+                                                ? 'bg-indigo-500/15 border-indigo-500/50 text-indigo-300'
+                                                : 'bg-[#0d0d0d] border-[#333] text-gray-400 hover:border-[#555] hover:text-gray-200'
                                                 }`}
                                         >
                                             {isSelected && <Check className="w-3.5 h-3.5 inline mr-1.5" />}
