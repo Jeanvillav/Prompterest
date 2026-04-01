@@ -19,6 +19,10 @@ export default function Register() {
         setError(null)
 
         try {
+            // 🔫 CAZAFANTASMAS: Destruir cualquier sesión zombie antes de registrar
+            await supabase.auth.signOut();
+            console.log("🧹 Sesión previa destruida (si existía).");
+
             console.log("📦 PAYLOAD ENVIADO A SUPABASE:", { email: email, passwordLength: password?.length });
 
             const { data, error } = await supabase.auth.signUp({
@@ -30,6 +34,14 @@ export default function Register() {
             })
 
             console.log("🚨 RESPUESTA CRUDA DE SUPABASE:", { data, error });
+
+            // 🔍 DETECTOR DE AUTO-LOGIN: Si Supabase devuelve sesión, Confirm Email está APAGADO
+            if (data?.session) {
+                console.error("❌ ERROR ARQUITECTÓNICO: Supabase devolvió una sesión activa. Esto significa que 'Confirm Email' está APAGADO en el dashboard de la nube. El usuario fue auto-logueado.");
+                setError("Error de configuración del servidor. Contacta al administrador.");
+                setLoading(false);
+                return;
+            }
 
             // 1. Validar errores de red o servidor
             if (error) {
