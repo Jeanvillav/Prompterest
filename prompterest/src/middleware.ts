@@ -28,7 +28,46 @@ export async function middleware(request: NextRequest) {
     )
 
     // Refrescar la sesión en cada petición
-    await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const pathname = request.nextUrl.pathname
+
+    // Rutas que no necesitan guardia de onboarding
+    const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register')
+    const isOnboardingRoute = pathname === '/onboarding'
+    const isCallbackRoute = pathname.startsWith('/auth/callback')
+    const isApiRoute = pathname.startsWith('/api/')
+    const isWelcomeRoute = pathname === '/welcome'
+
+    // Si el usuario está autenticado y no ha completado el onboarding, forzar /onboarding
+    if (user && !isOnboardingRoute && !isCallbackRoute && !isApiRoute && !isAuthRoute && !isWelcomeRoute) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('onboarding_completed')
+            .eq('id', user.id)
+            .single()
+
+        if (profile && profile.onboarding_completed === false) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/onboarding'
+            return NextResponse.redirect(url)
+        }
+    }
+
+    // Si el usuario ya completó onboarding pero visita /onboarding, sacarlo
+    if (user && isOnboardingRoute) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('onboarding_completed')
+            .eq('id', user.id)
+            .single()
+
+        if (profile && profile.onboarding_completed === true) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+    }
 
     return supabaseResponse
 }

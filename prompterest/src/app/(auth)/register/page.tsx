@@ -26,7 +26,7 @@ export default function Register() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: 'https://prompterest-six.vercel.app/auth/callback?next=/welcome',
+                    emailRedirectTo: 'https://prompterest-six.vercel.app/auth/callback?next=/onboarding',
                 }
             })
 

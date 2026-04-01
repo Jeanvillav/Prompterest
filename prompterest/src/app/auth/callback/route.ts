@@ -5,8 +5,8 @@ export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
 
-    // Leer el parámetro next, usar root como fallback
-    const next = searchParams.get('next') ?? '/'
+    // Leer el parámetro next, usar /onboarding como fallback para nuevos usuarios
+    const next = searchParams.get('next') ?? '/onboarding'
 
     if (code) {
         const supabase = await createClient()
