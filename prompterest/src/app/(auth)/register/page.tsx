@@ -19,17 +19,14 @@ export default function Register() {
         setError(null)
 
         try {
-            // 🔫 CAZAFANTASMAS: Destruir cualquier sesión zombie antes de registrar
-            await supabase.auth.signOut();
-            console.log("🧹 Sesión previa destruida (si existía).");
-
+            console.log("🚀 INICIANDO SIGNUP...");
             console.log("📦 PAYLOAD ENVIADO A SUPABASE:", { email: email, passwordLength: password?.length });
 
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback?next=/welcome`,
+                    emailRedirectTo: 'https://prompterest-six.vercel.app/auth/callback?next=/welcome',
                 }
             })
 
@@ -66,6 +63,7 @@ export default function Register() {
             // 3. Solo si pasa todas las barreras de arriba, es un éxito real:
             setError(null);
             setIsSuccess(true);
+            console.log("✅ SIGNUP FINALIZADO. isSuccess debería cambiar.");
             setLoading(false);
         } catch (err) {
             console.error("💥 ERROR DE CÓDIGO/RED:", err);
