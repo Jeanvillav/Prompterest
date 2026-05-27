@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Mail } from 'lucide-react'
 
@@ -11,6 +12,7 @@ export default function Register() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [isSuccess, setIsSuccess] = useState(false)
+    const router = useRouter()
     const supabase = createClient()
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -33,12 +35,15 @@ export default function Register() {
             console.log("🚨 RESPUESTA CRUDA DE SUPABASE:", { data, error });
 
             // 🔍 DETECTOR DE AUTO-LOGIN: Si Supabase devuelve sesión, Confirm Email está APAGADO
+            // TEMPORAL: Desactivado para la demo
+            /*
             if (data?.session) {
                 console.error("❌ ERROR ARQUITECTÓNICO: Supabase devolvió una sesión activa. Esto significa que 'Confirm Email' está APAGADO en el dashboard de la nube. El usuario fue auto-logueado.");
                 setError("Error de configuración del servidor. Contacta al administrador.");
                 setLoading(false);
                 return;
             }
+            */
 
             // 1. Validar errores de red o servidor
             if (error) {
@@ -62,6 +67,16 @@ export default function Register() {
 
             // 3. Solo si pasa todas las barreras de arriba, es un éxito real:
             setError(null);
+            
+            // TEMPORAL: Redirigir directamente al home (o donde sea necesario) en lugar de mostrar el mensaje de correo
+            if (data?.session) {
+                console.log("✅ SIGNUP FINALIZADO. Redirigiendo al home temporalmente...");
+                router.refresh();
+                router.push('/');
+                return;
+            }
+
+            // Fallback por si Confirm Email sigue activado (no debería en este flujo)
             setIsSuccess(true);
             console.log("✅ SIGNUP FINALIZADO. isSuccess debería cambiar.");
             setLoading(false);

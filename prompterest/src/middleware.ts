@@ -39,6 +39,8 @@ export async function middleware(request: NextRequest) {
     const isApiRoute = pathname.startsWith('/api/')
     const isWelcomeRoute = pathname === '/welcome'
 
+    // TEMPORAL: Desactivado para la demo
+    /*
     // Si el usuario está autenticado y no ha completado el onboarding, forzar /onboarding
     if (user && !isOnboardingRoute && !isCallbackRoute && !isApiRoute && !isAuthRoute && !isWelcomeRoute) {
         const { data: profile } = await supabase
@@ -53,7 +55,10 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(url)
         }
     }
+    */
 
+    // TEMPORAL: Desactivado para la demo
+    /*
     // Si el usuario ya completó onboarding pero visita /onboarding, sacarlo
     if (user && isOnboardingRoute) {
         const { data: profile } = await supabase
@@ -68,6 +73,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(url)
         }
     }
+    */
 
     return supabaseResponse
 }
